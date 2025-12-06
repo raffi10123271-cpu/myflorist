@@ -109,16 +109,19 @@ Route::middleware('auth')->group(function () {
         ->name('chat.send');
 });
 
-Route::middleware(['auth'])->prefix('profile')->group(function () {
+Route::middleware(['auth'])->group(function () {
 
-    Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
-    Route::get('/addresses', [App\Http\Controllers\ProfileController::class, 'addresses'])->name('profile.addresses');
-    Route::get('/payments', [App\Http\Controllers\ProfileController::class, 'payments'])->name('profile.payments');
-    Route::get('/bank', [App\Http\Controllers\ProfileController::class, 'bank'])->name('profile.bank');
-    Route::get('/notifications', [App\Http\Controllers\ProfileController::class, 'notifications'])->name('profile.notifications');
-    Route::get('/security', [App\Http\Controllers\ProfileController::class, 'security'])->name('profile.security');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+
+    Route::get('/profile/biodata', [ProfileController::class, 'biodata'])->name('profile.biodata');
+    Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
+    Route::get('/profile/payments', [ProfileController::class, 'payments'])->name('profile.payments');
+    Route::get('/profile/bank', [ProfileController::class, 'bank'])->name('profile.bank');
+    Route::get('/profile/notifications', [ProfileController::class, 'notifications'])->name('profile.notifications');
+    Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
 });
+
 
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])
