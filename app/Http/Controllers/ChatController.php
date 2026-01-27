@@ -2,86 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Message;
-use App\Models\Order;
 use Illuminate\Http\Request;
-use App\Events\MessageSent;
+use App\Models\ChatMessage;
+use App\Models\User;
 
 class ChatController extends Controller
 {
-    // tampilkan halaman chat antara buyer dan seller
-    public function index($orderId)
+    public function list()
     {
-        $order = Order::findOrFail($orderId);
+        $userId = auth()->id();
 
-        // tentukan seller berdasarkan produk
-        $sellerId = $order->items->first()->product->seller_id;
+        $sellers = User::where('role', 'seller')->get();
 
-        $messages = Message::where('order_id', $orderId)
-            ->orderBy('created_at')
-            ->get();
-        
-        $chats = \App\Models\ChatMessage::where('sender_id', auth()->id())
-        ->orWhere('receiver_id', auth()->id())
-        ->with(['sender', 'receiver'])
-        ->orderBy('created_at', 'DESC')
-        ->get()
-        ->groupBy(function($msg){
-            return $msg->sender_id == auth()->id() 
-                ? $msg->receiver_id 
-                : $msg->sender_id;
-        });
-
-        return view('chat.index', compact('messages', 'order', 'sellerId','chats'));
+        return view('chat.list', compact('sellers'));
     }
 
-    // kirim pesan baru
-   public function send(Request $request)
-{
-    $request->validate([
-        'message' => 'required',
-        'receiver_id' => 'required|exists:users,id'
-    ]);
-
-    $msg = ChatMessage::create([
-        'sender_id' => auth()->id(),
-        'receiver_id' => $request->receiver_id,
-        'message' => $request->message
-    ]);
-
-    // === BROADCAST REALTIME ===
-    broadcast(new ChatMessageSent($msg))->toOthers();
-
-    return back();
-}
-
-
     public function detail($sellerId)
-{
-    $messages = \App\Models\ChatMessage::where(function ($q) use ($sellerId) {
-        $q->where('sender_id', auth()->id())
-          ->where('receiver_id', $sellerId);
-    })
-    ->orWhere(function ($q) use ($sellerId) {
-        $q->where('sender_id', $sellerId)
-          ->where('receiver_id', auth()->id());
-    })
-    ->with(['sender', 'receiver'])
-    ->orderBy('created_at')
-    ->get();
+    {
+        $messages = ChatMessage::where(function($q) use ($sellerId){
+                $q->where('sender_id', auth()->id())
+                  ->orWhere('receiver_id', auth()->id());
+            })
+            ->where(function($q) use ($sellerId){
+                $q->where('sender_id', $sellerId)
+                  ->orWhere('receiver_id', $sellerId);
+            })
+            ->orderBy('created_at')
+            ->get();
 
-    $seller = \App\Models\User::findOrFail($sellerId);
+        $seller = User::findOrFail($sellerId);
 
-    return view('chat.detail', compact('messages', 'sellerId', 'seller'));
-}
+        return view('chat.detail', compact('seller', 'messages', 'sellerId'));
+    }
 
-public function list()
-{
-    // Ambil seller yang pernah melakukan transaksi dengan user
-    $sellers = \App\Models\User::where('role', 'seller')->get();
+    public function send(Request $req)
+    {
+        $req->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'message'     => 'required|string'
+        ]);
 
-    return view('chat.list', compact('sellers'));
-}
+        ChatMessage::create([
+            'sender_id'   => auth()->id(),
+            'receiver_id' => $req->receiver_id,
+            'message'     => $req->message
+        ]);
 
-
+        return back();
+    }
 }

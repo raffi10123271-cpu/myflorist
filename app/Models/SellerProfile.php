@@ -6,16 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class SellerProfile extends Model
 {
-    protected $fillable = [
+   protected $fillable = [
         'user_id',
-        'shop_name',
-        'phone',
-        'address',
-        'logo'
+        'store_name',
+        'store_phone',
+        'store_address',
+        'store_description',
+        'store_logo'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+  
 }

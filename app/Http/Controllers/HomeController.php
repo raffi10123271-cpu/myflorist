@@ -9,9 +9,9 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $products = Product::with('images')->latest()->take(12)->get();
-        $categories = Category::all();
-
-        return view('home', compact('products','categories'));
+        return view('home', [
+            'products'   => Product::latest()->limit(12)->get(),
+            'categories' => Category::all(),
+        ]);
     }
 }

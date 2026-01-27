@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\ProductImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\Product;
 
 class SellerProductController extends Controller
 {
     public function index()
     {
-        $products = Product::where('seller_id', auth()->id())->with('images')->get();
+        $products = Product::where('user_id', auth()->id())->get();
         return view('seller.products.index', compact('products'));
     }
 
@@ -24,67 +22,55 @@ class SellerProductController extends Controller
     public function store(Request $req)
     {
         $req->validate([
-            'title' => 'required',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'images.*' => 'image|max:2048'
+            'name'        => 'required',
+            'price'       => 'required|numeric',
+            'description' => 'required',
+            'image'       => 'image|max:2048'
         ]);
 
-        $product = Product::create([
-            'seller_id' => auth()->id(),
-            'title' => $req->title,
-            'slug' => Str::slug($req->title),
-            'price' => $req->price,
-            'stock' => $req->stock,
-            'description' => $req->description
+        Product::create([
+            'user_id'     => auth()->id(),
+            'name'        => $req->name,
+            'price'       => $req->price,
+            'description' => $req->description,
+            'image'       => $req->image?->store('products'),
         ]);
 
-        if ($req->hasFile('images')) {
-            foreach ($req->file('images') as $img) {
-                $path = $img->store('uploads/products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'url' => 'storage/'.$path
-                ]);
-            }
-        }
-
-        return redirect()->route('products.index')
-            ->with('success', 'Produk berhasil ditambahkan!');
+        return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
 
     public function edit(Product $product)
     {
-        if ($product->seller_id !== auth()->id()) {
-            abort(403);
-        }
-
+        $this->authorize('update', $product);
         return view('seller.products.edit', compact('product'));
     }
 
     public function update(Request $req, Product $product)
     {
-        if ($product->seller_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $product);
 
-        $product->update([
-            'title' => $req->title,
-            'price' => $req->price,
-            'stock' => $req->stock,
-            'description' => $req->description
+        $req->validate([
+            'name'        => 'required',
+            'price'       => 'required|numeric',
+            'description' => 'required',
+            'image'       => 'image|max:2048'
         ]);
 
-        return back()->with('success', 'Produk diperbarui!');
+        $product->update([
+            'name'        => $req->name,
+            'price'       => $req->price,
+            'description' => $req->description,
+            'image'       => $req->image ? $req->image->store('products') : $product->image,
+        ]);
+
+        return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Product $product)
     {
-        if ($product->seller_id !== auth()->id()) {
-            abort(403);
-        }
-
+        $this->authorize('delete', $product);
         $product->delete();
-        return back()->with('success', 'Produk dihapus!');
+
+        return back()->with('success', 'Produk berhasil dihapus.');
     }
 }

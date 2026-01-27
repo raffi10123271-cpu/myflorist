@@ -3,27 +3,21 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\Order;
 
 class ShippingController extends Controller
 {
     public function updateShippingStatus(Request $req, $id)
     {
         $req->validate([
-            'shipping_status' => 'required',
+            'status' => 'required|string'
         ]);
 
-        $order = Order::findOrFail($id);
+        $order = Order::where('seller_id', auth()->id())->findOrFail($id);
+        $order->shipping_status = $req->status;
+        $order->save();
 
-        if ($order->items->first()->product->seller_id != auth()->id()) {
-            abort(403);
-        }
-
-        $order->update([
-            'shipping_status' => $req->shipping_status,
-        ]);
-
-        return back()->with('success', 'Status pengiriman diperbarui!');
+        return back()->with('success', 'Status pengiriman diperbarui.');
     }
 }

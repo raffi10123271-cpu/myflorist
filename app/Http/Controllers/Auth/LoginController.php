@@ -8,49 +8,50 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    // TAMPILKAN HALAMAN LOGIN
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // PROSES LOGIN
     public function login(Request $request)
-    {
-        // VALIDASI INPUT
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'login'    => 'required',
+        'password' => 'required',
+    ]);
 
-        // LOGIN PAKAI EMAIL ATAU NO HP
-        $credentials = [
-            filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone' => $request->email,
-            'password' => $request->password
-        ];
+    $login = $request->login;
 
-        // COBA LOGIN
-        if (Auth::attempt($credentials, $request->remember)) {
-
-            $request->session()->regenerate();
-
-            return redirect()->intended('/');
-        }
-
-        // GAGAL LOGIN
-        return back()->withErrors([
-            'email' => 'Email / Nomor HP atau Password salah.',
-        ]);
+    // DETEKSI FIELD YANG DIPAKAI LOGIN
+    if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+        $field = 'email';
+    } elseif (is_numeric($login)) {
+        $field = 'phone';
+    } else {
+        $field = 'username';
     }
 
-    // LOGOUT
-    public function logout(Request $request)
+    // LOGIN
+    if (Auth::attempt([$field => $login, 'password' => $request->password])) {
+
+        // Jika admin → redirect admin panel
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        // User biasa
+        return redirect()->intended('/');
+    }
+
+    return back()->withErrors([
+        'login' => "Login gagal! $field tidak cocok atau password salah.",
+    ]);
+}
+
+
+    public function logout()
     {
         Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

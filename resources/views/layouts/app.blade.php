@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +53,7 @@
                 $notifCount = auth()->user()->unreadNotifications->count();
             @endphp
 
-            <a href="{{ route('notifications') }}" class="relative hover:text-green-600 text-xl">
+            <a href="{{ route('notifications.index') }}" class="relative hover:text-green-600 text-xl">
                 <i class="fa-solid fa-bell"></i>
 
              @if($notifCount > 0)
@@ -63,17 +64,35 @@
             </a>
 
 
-                <!-- MESSAGE -->
-                <a href="{{ route('chat.list') }}" class="hover:text-green-600 text-xl">
-                    <i class="fa-solid fa-envelope"></i>
-                </a>
+                <!-- ICON PESAN -->
+<div x-data="{ open: false }" class="relative">
+    <button @click="open = !open" class="focus:outline-none">
+        <i class="fa-regular fa-envelope text-xl cursor-pointer"></i>
+    </button>
+
+            <!-- DROPDOWN -->
+                <div
+                    x-show="open"
+                    @click.outside="open = false"
+                    x-transition
+                    class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50"
+    >
+                    <a href="{{ route('chat') }}" class="block px-4 py-2 hover:bg-gray-100">Chat</a>
+                    <a href="{{ route('reviews') }}" class="block px-4 py-2 hover:bg-gray-100">Ulasan</a>
+                    <a href="{{ route('help') }}" class="block px-4 py-2 hover:bg-gray-100">Pesan Bantuan</a>
+                    <a href="{{ route('complaints') }}" class="block px-4 py-2 hover:bg-gray-100">Pesanan Dikomplain</a>
+                </div>
+            </div>
+
+
 
                 <!-- TOKO HANYA UNTUK SELLER -->
-                @if(auth()->user()->role === 'seller')
+               @if(auth()->user()->seller_status === 'approved')
                     <a href="{{ route('seller.dashboard') }}" class="hover:text-green-600 font-semibold">
                         Toko
                     </a>
                 @endif
+
 
                 <!-- DROPDOWN -->
                 <div x-data="{ open:false }" class="relative">
@@ -98,11 +117,10 @@
                         <hr class="my-2">
 
                         <a href="#" class="block py-2 hover:text-green-600">Pembelian</a>
-                        <a href="#" class="block py-2 hover:text-green-600">Wishlist</a>
-                        <a href="#" class="block py-2 hover:text-green-600">Pengaturan</a>
-                        <a href="#" class="block py-2 hover:text-green-600">Toko Favorit</a>
-                        <a href="{{ route('profile') }}" class="block py-2 hover:text-green-600">Pengaturan Profil</a>
-                        
+                        <a href="{{ route('profile.tab', 'biodata') }}" class="block py-2 hover:text-green-600">
+                            Pengaturan Profil
+                        </a>
+
                         <form action="{{ route('logout') }}" method="POST" class="mt-3">
                             @csrf
                             <button class="text-red-600 font-semibold">Logout</button>

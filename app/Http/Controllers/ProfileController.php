@@ -7,70 +7,100 @@ use App\Models\Address;
 
 class ProfileController extends Controller
 {
-    public function index() {
-    return view('profile.index', [
-        'tab' => 'biodata'
-    ]);
-}
+    public function index($tab)
+    {
+        $allowedTabs = [
+            'biodata', 'addresses', 'payments', 'bank', 'notifications', 'security'
+        ];
 
-public function addresses()
-{
-    $addresses = auth()->user()->addresses ?? [];
+        if (!in_array($tab, $allowedTabs)) {
+            return redirect()->route('profile.tab', 'biodata');
+        }
 
-    return view('profile.index', [
-        'tab' => 'addresses',
-        'addresses' => $addresses
-    ]);
-}
+        $user = auth()->user();
 
-
-public function payments() {
-    return view('profile.index', [
-        'tab' => 'payments'
-    ]);
-}
-
-public function bank() {
-    return view('profile.index', [
-        'tab' => 'bank'
-    ]);
-}
-
-public function notifications() {
-    return view('profile.index', [
-        'tab' => 'notifications'
-    ]);
-}
-
-public function security() {
-    return view('profile.index', [
-        'tab' => 'security'
-    ]);
-}
+        return view('profile.index', [
+            'tab'       => $tab,
+            'user'      => $user,
+            'addresses' => $user->addresses ?? [],
+            'payments'  => $user->payments ?? [],
+            'banks'     => $user->banks ?? [],
+        ]);
+    }
 
 
+    /* ============================================================
+    |  BIODATA UPDATE
+    ============================================================ */
     public function update(Request $req)
     {
         $req->validate([
-            'name' => 'required|string',
+            'name'  => 'required|string',
             'email' => 'required|email',
         ]);
 
-        $user = auth()->user();
-        $user->name = $req->name;
-        $user->email = $req->email;
-        $user->save();
+        auth()->user()->update($req->only('name', 'email'));
 
-        return back()->with('success','Profil berhasil diperbarui!');
+        return back()->with('success', 'Profil berhasil diperbarui!');
     }
 
+
+    /* ============================================================
+    |  SELLER APPLY
+    ============================================================ */
     public function becomeSeller()
     {
         $user = auth()->user();
-        $user->role = 'seller';
+
+        if ($user->seller_status !== 'none') {
+            return back()->with('info', 'Anda sudah mengajukan pendaftaran seller.');
+        }
+
+        $user->seller_status = 'pending';
         $user->save();
 
-        return redirect()->route('seller.dashboard')
-            ->with('success','Selamat! Anda sekarang adalah Seller.');
+        return back()->with('success', 'Pengajuan seller dikirim. Menunggu verifikasi admin.');
     }
+
+
+    /* ============================================================
+    |  ADDRESS ADD FORM
+    ============================================================ */
+    public function addAddress()
+    {
+        return view('profile.tabs.address_add');
+    }
+
+
+    /* ============================================================
+    |  ADDRESS STORE
+    ============================================================ */
+    public function storeAddress(Request $request)
+{
+    $request->validate([
+        'label' => 'required',
+        'receiver' => 'required',
+        'phone' => 'required',
+        'full_address' => 'required',
+        'city' => 'required',
+        'province' => 'required',
+        'postal_code' => 'required',
+    ]);
+
+    \App\Models\Address::create([
+        'user_id'      => auth()->id(),
+        'label'        => $request->label,
+        'receiver'     => $request->receiver,
+        'phone'        => $request->phone,
+        'full_address' => $request->full_address,
+        'city'         => $request->city,
+        'province'     => $request->province,
+        'postal_code'  => $request->postal_code,
+        'is_primary'   => 0,  // default
+    ]);
+
+    return redirect('/profile/addresses')
+        ->with('success', 'Alamat berhasil ditambahkan!');
+}
+
 }

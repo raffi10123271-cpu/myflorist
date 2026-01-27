@@ -9,40 +9,26 @@
 <form method="POST" action="{{ route('register') }}">
     @csrf
 
-    {{-- NAME --}}
-    <div class="mb-4">
+    <label>Nama</label>
+    <input type="text" name="name" class="border p-2 w-full rounded" required>
 
-    <label for="name" class="block text-gray-800 font-semibold mb-1">Nama Lengkap</label>
-    <input id="name" name="name" type="text"
-           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 focus:ring-2 focus:ring-green-500"
-           placeholder="Nama lengkap Anda" required>
-    </div>
+    <label>Email</label>
+    <input type="email" name="email" class="border p-2 w-full rounded" required>
 
-    {{-- EMAIL --}}
-    <div class="mb-4">
-    <label for="email" class="block text-gray-800 font-semibold mb-1">Email</label>
-    <input id="email" name="email" type="email"
-           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 focus:ring-2 focus:ring-green-500"
-           placeholder="Email Anda" required>
-    </div>
+    <label>Username</label>
+    <input type="text" name="username" class="border p-2 w-full rounded" required>
 
-    {{-- PASSWORD --}}
-    <div class="mb-4">
-    <label for="password" class="block text-gray-800 font-semibold mb-1">Password</label>
-    <input id="password" name="password" type="password"
-           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 focus:ring-2 focus:ring-green-500"
-           placeholder="Minimal 6 karakter" required>
-    </div>
+    <label>Nomor HP</label>
+    <input type="text" name="phone" class="border p-2 w-full rounded" required>
 
-    {{-- CONFIRM --}}
-    <div class="mb-6">
-    <label for="password_confirmation" class="block text-gray-800 font-semibold mb-1">Konfirmasi Password</label>
-    <input id="password_confirmation" name="password_confirmation" type="password"
-           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 focus:ring-2 focus:ring-green-500"
-           placeholder="Ulangi password" required>
-    
-    <button class="w-full bg-green-600 text-white py-2 rounded-full hover:bg-green-700 transition">
-        Daftar
+    <label>Password</label>
+    <input type="password" name="password" class="border p-2 w-full rounded" required>
+
+    <label>Konfirmasi Password</label>
+    <input type="password" name="password_confirmation" class="border p-2 w-full rounded" required>
+
+    <button class="mt-4 w-full bg-green-600 text-white py-2 rounded">
+        Daftar Sekarang
     </button>
 </form>
 </div>

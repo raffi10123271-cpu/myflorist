@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
@@ -16,23 +16,48 @@ class RegisterController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+{
+    $request->validate([
+        'name'     => 'required',
+        'email'    => 'required|email|unique:users',
+        'password' => 'required|min:6',
+        'phone'    => 'nullable|unique:users',
+    ]);
 
-        // SIMPAN USER BARU
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    $username = strtolower(str_replace(' ', '', $request->name));
 
-        // AUTO LOGIN SETELAH REGISTER
-        Auth::login($user);
-
-        return redirect('/'); // direct ke homepage
+    // Jika username sudah dipakai, tambahkan angka unik
+    $count = \App\Models\User::where('username', $username)->count();
+    if ($count > 0) {
+        $username = $username . ($count + 1);
     }
+
+    $user = User::create([
+        'name'        => $request->name,
+        'email'       => $request->email,
+        'username'    => $username,
+        'phone'       => $request->phone,
+        'password'    => bcrypt($request->password),
+        'role'        => 'customer',
+        'seller_status' => 'none'
+    ]);
+
+    auth()->login($user);
+
+    return redirect('/')->with('success', 'Pendaftaran berhasil!');
+}
+
+    protected function create(array $data)
+{
+    return User::create([
+        'name'     => $data['name'],
+        'email'    => $data['email'],
+        'username' => $data['username'],
+        'phone'    => $data['phone'],
+        'password' => bcrypt($data['password']),
+        'role'     => 'customer',
+    ]);
+}
+
+
 }

@@ -1,57 +1,58 @@
-@extends('layouts.guest')
+@extends('layouts.app')
 
 @section('content')
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
+<div class="min-h-screen flex justify-center items-center bg-gray-100 py-10">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-8">
 
-    <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
-
-        <h2 class="text-center text-2xl font-bold text-green-600 mb-6">
+        <h2 class="text-2xl font-bold text-center text-green-600 mb-6">
             Masuk ke MyFlorist
         </h2>
 
-        <!-- FORM LOGIN -->
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- EMAIL -->
-            <div class="mb-4">
-                <label for="email" class="block text-gray-800 font-semibold mb-1">Email</label>
-                <input id="email" type="email" name="email"
-                       class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 
-                              focus:ring-2 focus:ring-green-500"
-                       placeholder="Email Anda" required autofocus>
+            {{-- USER INPUT --}}
+            <label class="font-semibold text-sm">Email / Username / Nomor HP</label>
+            <input 
+                type="text" 
+                name="login"
+                class="w-full p-3 border rounded-lg mt-1 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Masukkan email, username, atau no HP"
+                required
+            >
+
+            {{-- PASSWORD --}}
+            <label class="font-semibold text-sm mt-4 block">Password</label>
+            <input 
+                type="password" 
+                name="password"
+                class="w-full p-3 border rounded-lg mt-1 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Masukkan password"
+                required
+            >
+
+            {{-- REMEMBER ME --}}
+            <div class="flex items-center mt-3">
+                <input type="checkbox" name="remember" class="mr-2">
+                <span class="text-sm">Ingat saya</span>
             </div>
 
-            <!-- PASSWORD -->
-            <div class="mb-4">
-                <label for="password" class="block text-gray-800 font-semibold mb-1">Password</label>
-                <input id="password" type="password" name="password"
-                       class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-800 
-                              focus:ring-2 focus:ring-green-500"
-                       placeholder="Masukkan password" required>
-            </div>
-
-            <!-- REMEMBER ME -->
-            <div class="flex items-center mb-4">
-                <input type="checkbox" id="remember_me" name="remember"
-                       class="mr-2 rounded border-gray-300">
-                <label for="remember_me" class="text-gray-700 text-sm">Ingat saya</label>
-            </div>
-
-            <!-- LOGIN BUTTON -->
+            {{-- SUBMIT BUTTON --}}
             <button type="submit"
-                class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
-                Masuk
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold mt-6 transition">
+                Login
             </button>
-
         </form>
 
-        <!-- REGISTER -->
-        <p class="mt-4 text-center text-sm">
+        <p class="text-center text-sm mt-4">
             Belum punya akun?
-            <a href="{{ route('register') }}" class="text-green-600 font-semibold hover:underline">
-                Daftar
-            </a>
+            <a href="{{ route('register') }}" class="text-green-600 font-semibold hover:underline">Daftar</a>
         </p>
 
     </div>

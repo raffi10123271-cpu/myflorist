@@ -21,12 +21,16 @@
 <div class="max-w-7xl mx-auto px-4 mt-6">
     <h2 class="text-lg font-bold mb-4">Kategori Pilihan</h2>
 
-    <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+    <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-5">
 
         @foreach($categories as $cat)
-        <div class="flex flex-col items-center bg-white rounded-lg shadow p-3 hover:shadow-md transition cursor-pointer">
-            <img src="https://via.placeholder.com/60" class="rounded-full mb-2" />
-            <span class="text-sm font-semibold">{{ $cat->name }}</span>
+        <div class="flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
+
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fa-solid fa-seedling text-green-600 text-2xl"></i>
+            </div>
+
+            <span class="text-sm font-semibold text-center">{{ $cat->name }}</span>
         </div>
         @endforeach
 

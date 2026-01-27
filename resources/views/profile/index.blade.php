@@ -14,92 +14,75 @@
             </div>
         </div>
 
-        <nav class="space-y-2">
-            <a href="/chat" class="block py-2 hover:text-green-600">Chat</a>
-            <a href="#" class="block py-2 hover:text-green-600">Wishlist</a>
-            <a href="#" class="block py-2 hover:text-green-600">Toko Favorit</a>
-            <a href="{{ route('profile') }}?tab=biodata" class="block py-2 hover:text-green-600">Pengaturan</a>
+        <nav class="flex flex-col space-y-2 font-semibold">
+            <a href="#" class="text-gray-700">Chat</a>
+            
 
-            <!-- TOMBOL JADI SELLER -->
-            @if(auth()->user()->role === 'customer')
-            <form action="{{ route('profile.becomeSeller') }}" method="POST">
-                @csrf
-                <button class="mt-4 w-full bg-yellow-500 text-white py-2 rounded-lg">
-                    Daftar Jadi Seller
-                </button>
-            </form>
-            @else
-                <a href="{{ route('seller.dashboard') }}"
-                   class="mt-4 block w-full bg-green-600 text-white py-2 rounded-lg text-center">
-                    Masuk Dashboard Seller
-                </a>
-            @endif
+           @php
+    $status = auth()->user()->seller_status;
+@endphp
+
+@if(auth()->user()->seller_status === 'none')
+    <a href="{{ route('seller.registerForm') }}"
+       class="bg-yellow-500 text-white py-2 px-4 rounded block text-center">
+       Daftar Jadi Seller
+    </a>
+@elseif(auth()->user()->seller_status === 'pending')
+    <span class="bg-gray-400 text-white py-2 px-4 rounded block text-center">
+        Menunggu Verifikasi Admin
+    </span>
+@elseif(auth()->user()->seller_status === 'approved')
+    <a href="{{ route('seller.dashboard') }}"
+       class="bg-green-600 text-white py-2 px-4 rounded block text-center">
+       Masuk Dashboard Seller
+    </a>
+
+@elseif ($status === 'rejected')
+    <button class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg" disabled>
+        Pengajuan Ditolak
+    </button>
+@endif
+
         </nav>
     </aside>
 
-    <!-- CONTENT -->
+    <!-- KONTEN -->
     <section class="col-span-9 bg-white shadow rounded-lg p-6">
 
         <!-- TAB MENU -->
         @php
-    $active = request()->segment(2); // profile/biodata → 'biodata'
+    $active = $tab;
 @endphp
 
 <div class="flex space-x-6 border-b pb-2">
 
-    <a href="{{ route('profile.biodata') }}"
-       class="pb-2 {{ $active === 'biodata' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
+    <a href="{{ route('profile.tab', 'biodata') }}"
+       class="{{ $active === 'biodata' ? 'text-green-600 font-bold border-b-2 border-green-600' : 'text-gray-500' }}">
         Biodata Diri
     </a>
 
-    <a href="{{ route('profile.addresses') }}"
-       class="pb-2 {{ $active === 'addresses' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
+    <a href="{{ route('profile.tab', 'addresses') }}"
+       class="{{ $active === 'addresses' ? 'text-green-600 font-bold border-b-2 border-green-600' : 'text-gray-500' }}">
         Daftar Alamat
     </a>
 
-    <a href="{{ route('profile.payments') }}"
-       class="pb-2 {{ $active === 'payments' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
-        Pembayaran
-    </a>
+    <a href="{{ route('profile.tab', 'payments') }}"
+   class="{{ $active === 'payments' ? 'text-green-600 font-bold border-b-2 border-green-600' : 'text-gray-500' }}">
+    Rekening Anda
+</a>
 
-    <a href="{{ route('profile.bank') }}"
-       class="pb-2 {{ $active === 'bank' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
-        Rekening Bank
-    </a>
-
-    <a href="{{ route('profile.notifications') }}"
-       class="pb-2 {{ $active === 'notifications' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
+    <a href="{{ route('profile.tab', 'notifications') }}"
+       class="{{ $active === 'notifications' ? 'text-green-600 font-bold border-b-2 border-green-600' : 'text-gray-500' }}">
         Notifikasi
     </a>
 
-    <a href="{{ route('profile.security') }}"
-       class="pb-2 {{ $active === 'security' ? 'text-green-600 font-semibold border-b-2 border-green-600' : 'text-gray-500' }}">
-        Keamanan
-    </a>
-
 </div>
-        <!-- KONTEN TAB ======================================= -->
 
-        @if($tab == 'biodata')
-            @include('profile.tabs.biodata')
-        @endif
 
-        @if($tab == 'alamat')
-            @include('profile.tabs.addresses')
-        @endif
+        {{-- LOAD TAB --}}
+        @include('profile.tabs.' . $tab)
 
-        @if($tab == 'pembayaran')
-            @include('profile.tabs.payments')
-        @endif
-
-        @if($tab == 'keamanan')
-            @include('profile.tabs.security')
-        @endif
     </section>
-
-    @section('profile-content')
-        @include("profile.tabs." . $tab)
-    @endsection
 
 </div>
 @endsection

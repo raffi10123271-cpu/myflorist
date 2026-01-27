@@ -11,20 +11,37 @@ class CartController extends Controller
     public function index()
     {
         $items = Cart::with('product')
-                     ->where('user_id', auth()->id())
-                     ->get();
+            ->where('user_id', auth()->id())
+            ->get();
 
-        return view('cart', compact('items'));
+        return view('cart.index', compact('items'));
     }
 
-    public function add($productId)
+    public function add(Request $req)
     {
-        Cart::create([
-            'user_id' => auth()->id(),
-            'product_id' => $productId,
-            'quantity' => 1,
+        $req->validate([
+            'product_id' => 'required|exists:products,id'
         ]);
 
-        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+        Cart::updateOrCreate(
+            [
+                'user_id'    => auth()->id(),
+                'product_id' => $req->product_id
+            ],
+            [
+                'quantity' => \DB::raw('quantity + 1')
+            ]
+        );
+
+        return back()->with('success', 'Produk ditambahkan ke keranjang');
+    }
+
+    public function remove(Request $req)
+    {
+        Cart::where('user_id', auth()->id())
+            ->where('product_id', $req->product_id)
+            ->delete();
+
+        return back()->with('success', 'Produk berhasil dihapus');
     }
 }

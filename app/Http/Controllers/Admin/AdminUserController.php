@@ -18,4 +18,25 @@ class AdminUserController extends Controller
         User::findOrFail($id)->delete();
         return back()->with('success', 'User dihapus!');
     }
+
+    public function sellerRequests()
+{
+    $users = User::where('seller_status', 'pending')->get();
+    return view('admin.seller.requests', compact('users'));
 }
+
+public function approveSeller($id)
+{
+    User::where('id', $id)->update(['seller_status' => 'approved']);
+    return back()->with('success', 'Seller berhasil disetujui!');
+}
+
+public function rejectSeller($id)
+{
+    User::where('id', $id)->update(['seller_status' => 'rejected']);
+    return back()->with('success', 'Seller ditolak.');
+}
+
+}
+
+    
