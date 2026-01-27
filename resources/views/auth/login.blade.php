@@ -8,6 +8,13 @@
             Masuk ke MyFlorist
         </h2>
 
+        <!-- Menampilkan pesan sukses dari registrasi -->
+        @if(session('success'))
+            <div class="mb-4 bg-green-100 text-green-700 p-3 rounded">
+                {{ session('success') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="mb-4 bg-red-100 text-red-700 p-3 rounded">
                 {{ $errors->first() }}

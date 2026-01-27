@@ -42,9 +42,10 @@ class RegisterController extends Controller
         'seller_status' => 'none'
     ]);
 
-    auth()->login($user);
+    // auth()->login($user);
 
-    return redirect('/')->with('success', 'Pendaftaran berhasil!');
+    // Arahkan ke halaman login setelah registrasi
+    return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan login.');
 }
 
     protected function create(array $data)

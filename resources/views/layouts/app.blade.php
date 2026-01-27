@@ -13,6 +13,13 @@
 
 <body class="bg-gray-100">
 
+<!-- Menampilkan pesan flash (success) -->
+    @if(session('success'))
+        <div class="max-w-7xl mx-auto px-4 py-2 mt-4 bg-green-600 text-white text-center rounded-md">
+            {{ session('success') }}
+        </div>
+    @endif
+
 <nav class="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
     <div class="max-w-7xl mx-auto flex items-center justify-between py-3 px-4">
 
